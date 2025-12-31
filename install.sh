@@ -1,17 +1,14 @@
-#!/bin/sh
-
+#!/bin/bash
 set -e
 
 echo "======================================"
-echo " Alpine noVNC + Fluxbox 安装脚本"
+echo " Debian noVNC + Fluxbox 安装脚本"
 echo "======================================"
 
-# 默认值
-DEFAULT_VNC_PORT=5900
+DEFAULT_VNC_PORT=5901
 DEFAULT_NOVNC_PORT=6080
 DEFAULT_RES="1280x800x24"
 
-echo
 read -p "请输入 VNC 端口 [$DEFAULT_VNC_PORT]: " VNC_PORT
 VNC_PORT=${VNC_PORT:-$DEFAULT_VNC_PORT}
 
@@ -24,25 +21,19 @@ SCREEN_RES=${SCREEN_RES:-$DEFAULT_RES}
 echo
 echo "📦 安装依赖中..."
 
-apk update
-apk add --no-cache \
+apt update
+apt install -y \
   fluxbox \
-  firefox \
-  xorg-server \
-  xf86-video-dummy \
-  xf86-input-libinput \
-  x11vnc \
-  xvfb \
-  novnc \
+  firefox-esr \
+  tightvncserver \
   websockify \
-  dbus \
-  ttf-dejavu
-
-echo
-echo "📝 写入配置文件 config.env"
+  novnc \
+  xvfb \
+  x11vnc \
+  dbus-x11 \
+  fonts-dejavu-core
 
 cat > config.env <<EOF
-# noVNC 配置
 DISPLAY_NUM=:0
 VNC_PORT=$VNC_PORT
 NOVNC_PORT=$NOVNC_PORT
@@ -54,6 +45,6 @@ chmod +x start.sh
 echo
 echo "======================================"
 echo "✅ 安装完成"
-echo "👉 下一步运行： ./start.sh"
-echo "🌐 访问地址: http://<你的IP>:$NOVNC_PORT/vnc.html"
+echo "👉 运行： ./start.sh"
+echo "🌐 访问: http://<你的IP>:$NOVNC_PORT/vnc.html"
 echo "======================================"

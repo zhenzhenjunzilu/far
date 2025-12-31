@@ -1,5 +1,4 @@
-#!/bin/sh
-
+#!/bin/bash
 set -e
 
 if [ ! -f ./config.env ]; then
@@ -7,17 +6,16 @@ if [ ! -f ./config.env ]; then
   exit 1
 fi
 
-. ./config.env
-
+source ./config.env
 export DISPLAY=$DISPLAY_NUM
 
 echo "[1/6] 启动 Xvfb..."
-Xvfb $DISPLAY_NUM -screen 0 $SCREEN_RES >/tmp/xvfb.log 2>&1 &
+Xvfb $DISPLAY_NUM -screen 0 $SCREEN_RES &
 
 sleep 2
 
 echo "[2/6] 启动 D-Bus..."
-dbus-daemon --system >/tmp/dbus.log 2>&1 &
+dbus-launch --exit-with-session >/tmp/dbus.log 2>&1 &
 
 sleep 1
 
@@ -31,27 +29,23 @@ firefox >/tmp/firefox.log 2>&1 &
 
 sleep 2
 
-echo "[5/6] 启动 VNC (端口 $VNC_PORT)..."
+echo "[5/6] 启动 VNC..."
 x11vnc \
   -display $DISPLAY_NUM \
   -nopw \
   -forever \
   -shared \
-  -rfbport $VNC_PORT \
-  >/tmp/x11vnc.log 2>&1 &
+  -rfbport $VNC_PORT &
 
 sleep 1
 
-echo "[6/6] 启动 noVNC (端口 $NOVNC_PORT)..."
+echo "[6/6] 启动 noVNC..."
 websockify \
   --web=/usr/share/novnc/ \
-  $NOVNC_PORT localhost:$VNC_PORT \
-  >/tmp/novnc.log 2>&1 &
+  $NOVNC_PORT localhost:$VNC_PORT &
 
 echo
 echo "======================================"
 echo "✅ noVNC 桌面已启动"
-echo "🌐 访问地址:"
-echo "   http://<你的IP>:$NOVNC_PORT/vnc.html"
-echo "📺 分辨率: $SCREEN_RES"
+echo "🌐 http://<你的IP>:$NOVNC_PORT/vnc.html"
 echo "======================================"
